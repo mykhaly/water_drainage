@@ -1,18 +1,20 @@
 PRECISION = 3
 
+
 class Cell:
     def __init__(self, x, y, terrain, water):
-        self.x = x
-        self.y = y
-        self._terrain = terrain
-        self._water = water
+        self.x = int(x)
+        self.y = int(y)
+        self._terrain = float(terrain)
+        self._water = float(water)
 
     def __repr__(self):
-        return "\n{}\t{}\t{}\t{}".format(
+        return "{}  {}  {}  {}   ".format(
             self.x,
             self.y,
             self.terrain,
             self.water)
+        # return "{} {}   ".format(self.terrain, self.water)
 
     @property
     def height(self):
@@ -33,24 +35,24 @@ class Cell:
     def get_neighbours(self, matrix):
         last = len(matrix) - 1
         neighbours = []
-        y = self.y
-        x = self.x
-        if y != 0:
-            neighbours.append(matrix[y - 1][x])
-        if y != 0 and x != last:
-            neighbours.append(matrix[y - 1][x + 1])
-        if x != last:
-            neighbours.append(matrix[y][x + 1])
-        if y != last and x != last:
-            neighbours.append(matrix[y + 1][x + 1])
-        if y != last:
-            neighbours.append(matrix[y + 1][x])
-        if y != last and x != 0:
-            neighbours.append(matrix[y + 1][x - 1])
-        if x != 0:
-            neighbours.append(matrix[y][x - 1])
-        if y != 0 and x != 0:
-            neighbours.append(matrix[y - 1][x - 1])
+        col = self.y
+        row = self.x
+        if row != 0:
+            neighbours.append(matrix[row - 1][col])
+        if row != 0 and col != last:
+            neighbours.append(matrix[row - 1][col + 1])
+        if col != last:
+            neighbours.append(matrix[row][col + 1])
+        if row != last and col != last:
+            neighbours.append(matrix[row + 1][col + 1])
+        if row != last:
+            neighbours.append(matrix[row + 1][col])
+        if row != last and col != 0:
+            neighbours.append(matrix[row + 1][col - 1])
+        if col != 0:
+            neighbours.append(matrix[row][col - 1])
+        if row != 0 and col != 0:
+            neighbours.append(matrix[row - 1][col - 1])
         return neighbours
 
     def get_minimal_neighbours(self, matrix):
@@ -58,6 +60,10 @@ class Cell:
         heights = [neighbour.height for neighbour in neighbours]
         min_height = min(heights + [self.height])
         minimal_neighbours = []
+        #
+        if min_height == self.height:
+            return minimal_neighbours
+        #
         for index, height in enumerate(heights):
             if height == min_height:
                 minimal_neighbours.append(neighbours[index])
@@ -71,23 +77,32 @@ class Cell:
             pass
         else:
             # some water will not be drained
-            max_input = (self.water - min_neighb[0].height) / (len(min_neighb) + 1)
+            # error for second iteration for first cell
+            # self.water == 5.5 and min_neighb[0].height == 5.5
+            max_input = round((self.water - min_neighb[0].height) / (len(min_neighb) + 1),
+                              PRECISION)
         for minimal_neighbour in min_neighb:
             shared_neighbours = set(minimal_neighbour.get_neighbours(matrix)).intersection(
                 set(neighbours))
             for shared_neighbour in shared_neighbours:
-                diff = shared_neighbour.height - minimal_neighbour.height
+                diff = round(shared_neighbour.height - minimal_neighbour.height, PRECISION)
                 max_input = diff if (diff != 0 and diff < max_input) else max_input
-        return max_input if max_input >= 1.0 / (pow(10, PRECISION)) else 0
+        # return max_input if max_input >= 1.0 / (pow(10, PRECISION)) else 0
+        return round(max_input, PRECISION)
 
     def drain_water(self, matrix):
-        sth_changed = True
-        while sth_changed:
+        smth_drained = False
+        while True:
             minimal_neighbours = self.get_minimal_neighbours(matrix)
             if not minimal_neighbours:
-                return
+                return smth_drained
             water_could_be_drained = self.possible_input(matrix, minimal_neighbours)
-            for minimal_neighbour in minimal_neighbours:
-                minimal_neighbour.water += water_could_be_drained
-                self.water -= water_could_be_drained
-            sth_changed = water_could_be_drained not in (float('inf'), 0)
+            if water_could_be_drained * len(minimal_neighbours) > self.water:
+                water_could_be_drained = self.water / len(minimal_neighbours)
+            if water_could_be_drained not in (float('inf'), 0):
+                for minimal_neighbour in minimal_neighbours:
+                    minimal_neighbour.water += water_could_be_drained
+                    self.water -= water_could_be_drained
+                smth_drained = True
+            else:
+                return smth_drained
