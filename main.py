@@ -10,15 +10,19 @@ THIRD_ROW = [Cell(2, 0, 2, 0), Cell(2, 1, 2, 0), Cell(2, 2, 0, 1)]
 # 2  0  2.0  1.0    2  1  9.0  6.0    2  2  7.0  7.0
 
 MATRIX2 = [FIRST_ROW, SECOND_ROW, THIRD_ROW]
-# MATRIX = []
-# for i in range(3):
-#     MATRIX.append([])
-#     for j in range(3):
-#         terrain = randint(0, 10)
-#         water = randint(0, 10)
-#         MATRIX[i].append(Cell(i, j, terrain, water))
+MATRIX = []
+for i in range(3):
+    MATRIX.append([])
+    for j in range(3):
+        if i == 1 and j == 1:
+            terrain = 20
+            water = 2
+        else:
+            terrain = randint(0, 10)
+            water = randint(0, 10)
+        MATRIX[i].append(Cell(i, j, terrain, water))
 
-MATRIX = read_data_from_file("/home/mykhalch/uni/input.txt")
+# MATRIX = read_data_from_file("/home/mykhalch/uni/input.txt")
 
 matrix = MATRIX
 
