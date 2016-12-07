@@ -1,24 +1,25 @@
-SIGNIFICANT_DIGITS = 8
+SIGNIFICANT_DIGITS = 5
+
 
 def isclose(a, b, rel_tol, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 class Cell:
-    def __init__(self, x, y, terrain, water):
+    def __init__(self, x, y, terrain, water, height=0):
         self.x = int(x)
         self.y = int(y)
         self._terrain = float(terrain)
         self._water = float(water)
 
     def __repr__(self):
-        return "{}  {}  {:.8f}  {:.8f}  {:.8f}   ".format(
+        return "{0} {1}\t{2:.{precision}f}\t{3:.{precision}f}\t{4:.{precision}f}\t\t ".format(
             self.x,
             self.y,
             self.terrain,
             self.water,
-            self.height)
-        # return "{} {}   ".format(self.terrain, self.water)
+            self.height,
+            precision=SIGNIFICANT_DIGITS - 1)
 
     @property
     def height(self):
@@ -62,9 +63,9 @@ class Cell:
     def get_minimal_neighbours(self, matrix):
         neighbours = self.get_neighbours(matrix)
         heights = [neighbour.height for neighbour in neighbours]
-        min_height = min(heights)
+        min_height = min(heights + [self.height])
         minimal_neighbours = []
-        precision = pow(10, -SIGNIFICANT_DIGITS)
+        precision = pow(10, -(SIGNIFICANT_DIGITS + 1))
         if isclose(min_height, self.height, precision):
             return minimal_neighbours
         for index, height in enumerate(heights):
@@ -81,15 +82,16 @@ class Cell:
         else:
             # some water will not be drained
             max_input = round((self.height - min_neighb[0].height) / (len(min_neighb) + 1),
-                              SIGNIFICANT_DIGITS)
+                              SIGNIFICANT_DIGITS + 1)
         for minimal_neighbour in min_neighb:
             shared_neighbours = set(minimal_neighbour.get_neighbours(matrix)).intersection(
                 set(neighbours))
             for shared_neighbour in shared_neighbours:
-                diff = round(shared_neighbour.height - minimal_neighbour.height, SIGNIFICANT_DIGITS)
+                diff = round(shared_neighbour.height - minimal_neighbour.height,
+                             SIGNIFICANT_DIGITS + 1)
                 max_input = diff if (diff != 0 and diff < max_input) else max_input
         # return max_input if max_input >= 1.0 / (pow(10, PRECISION)) else 0
-        return round(max_input, SIGNIFICANT_DIGITS)
+        return round(max_input, SIGNIFICANT_DIGITS + 1)
 
     def drain_water(self, matrix):
         smth_drained = False
