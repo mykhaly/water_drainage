@@ -27,7 +27,7 @@ def read_data_without_indices(filepath):
                 # skip height if present
                 data = entry.split()
                 terrain = data[0]
-                water = 0.1
+                water = 1.0
                 cell = Cell(i, j, terrain, water)
                 matrix[i].append(cell)
     return matrix
@@ -51,14 +51,38 @@ def print_matrix(matrix):
         print ""
 
 
+def get_water_ranges(matrix):
+    max = 0.
+    min = float('inf')
+    for i in matrix:
+        for el in i:
+            if el.water > max:
+                max = el.water
+            if el.water < min and el.water != 0:
+                min = el.water
+    return min, max
+
+
+
 def make_image(matrix):
+    min_water, max_water = get_water_ranges(matrix)
+    water_colours = [[0, 192, 192],
+                     [32, 128, 192],
+                     [32, 64, 192],
+                     [62, 32, 128]]
+
+    def get_water_shade(water_level):
+        if water_level == 0:
+            return [255, 255, 255]
+        water_shade_idx = int(float(water_level - min_water) / (max_water - min_water)) * 3
+        return water_colours[water_shade_idx]
+
     coefficient = 50
     size = len(matrix[0]) * coefficient
     data = np.zeros((size, size, 3), dtype=np.uint8)
     for i in xrange(len(matrix)):
         for j in xrange(len(matrix[i])):
-            contains_water = matrix[i][j].water > 0
-            colour = [25, 25, 112] if contains_water else [139, 69, 19]
+            colour = get_water_shade(matrix[i][j].water)
             for k in range(coefficient * i, coefficient * (i + 1)):
                 for l in range(coefficient * j, coefficient * (j + 1)):
                     data[k][l] = colour

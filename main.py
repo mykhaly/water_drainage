@@ -1,11 +1,10 @@
 from utils import *
-MATRIX_SIZE = 3
-
+MATRIX_SIZE = 15
 
 # there is bug in config contained in file
-matrix = read_data_without_indices("input3.txt")
+# matrix = read_data_without_indices("input3.txt")
 
-# matrix = init_matrix(MATRIX_SIZE)
+matrix = init_matrix(MATRIX_SIZE)
 
 
 def main():
@@ -13,7 +12,7 @@ def main():
     make_water_drainage(matrix)
     print_matrix(matrix)
     img = make_image(matrix)
-    # img.show()
+    img.show()
 
 
 if __name__ == "__main__":
