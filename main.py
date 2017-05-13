@@ -1,14 +1,16 @@
 from utils import *
 from image_helper import *
 from matrix_helper import *
+import const
 
 
 def main():
-    matrix = read_matrix("input3.txt")
-    # matrix = random_matrix(10, 15, 150)
+    filepath = os.path.join(const.DIRECTORY_NAME, "input.txt")
+    init_matrix_to_file(filepath, const.MATRIX_SIZE)
+    matrix = read_matrix(filepath)
     make_image(matrix, era="0", iteration=8000)
-    for era in range(1, 7):
-        make_rain(matrix)
+    for era in range(1, 10):
+        make_rain(matrix, 5)
         make_water_drainage(matrix, era)
         print_matrix(matrix)
         make_image(matrix, era=era, iteration=8000)
@@ -16,6 +18,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print const.DIRECTORY_NAME
+        raise
 
 # vovk.v.d@gmail.com

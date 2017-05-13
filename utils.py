@@ -24,4 +24,4 @@ def make_water_drainage(matrix, era):
                 # era 6
                 water_drained = cell.drain_water(matrix)
                 smt_changed = smt_changed or water_drained
-        # make_image(matrix, era=era, iteration=iterations_count)mamas
+        # make_image(matrix, era=era, iteration=iterations_count)

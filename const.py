@@ -1,7 +1,7 @@
 import random
 import os
 
-
+MATRIX_SIZE = 10
 SIGNIFICANT_DIGITS = 2  # precision of all calculations
 WATER_PER_LEVEL = 12
 WATER_SHADES = [

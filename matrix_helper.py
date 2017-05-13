@@ -1,7 +1,6 @@
 from random import randint
-
 from cell import Cell
-
+import numpy as np
 
 def read_matrix(filepath):
     with open(filepath, "r") as filee:
@@ -43,3 +42,26 @@ def print_matrix_diff(matrix1, matrix2):
                 print "first: {}, {}: {}\t".format(i, j, matrix1[i][j]),
                 print "second: {}, {}: {}".format(i, j, matrix2[i][j])
         print ""
+
+
+def init_matrix_to_file(filepath, size):
+    def make_ellipsoid(matrix, width, length):
+        width, length = float(width), float(length)
+        rows, cols = matrix.shape
+        for i in range(rows):
+            center_x = i - (rows / 2)
+            for j in range(cols):
+                center_y = j - (cols / 2)
+                if abs((center_x / length) ** 2) + abs((center_y / width) ** 2) >= 1:
+                    matrix[i, j] += (abs(center_x) + abs(center_y)) * 10
+        return matrix
+
+    data = np.matrix(np.zeros((size, size), int))
+    make_ellipsoid(data, 4, 3)
+    with open(filepath, "w") as f:
+        for i in range(size):
+            row = ""
+            for j in range(size):
+                row += str(data[i, j]) + " "
+            row += "\n"
+            f.write(row)
