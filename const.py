@@ -1,9 +1,13 @@
-import random
 import os
+from datetime import datetime
 
-MATRIX_SIZE = 10
+
+MATRIX_SIZE = 25
 SIGNIFICANT_DIGITS = 2  # precision of all calculations
+PRECISION = 0.01  # when two cells heights are considered equal
+WATER_TOLERANCE = PRECISION * MATRIX_SIZE * 2
 WATER_PER_LEVEL = 12
+AMOUNT_OF_RAIN = 5
 WATER_SHADES = [
     (176, 224, 230),
     (135, 206, 250),
@@ -16,6 +20,7 @@ WATER_SHADES = [
     (0, 0, 205),
     (0, 0, 128)]
 TERRAIN_PER_LEVEL = 21
+DEFAULT_TERRAIN_LEVEL = 100
 TERRAIN_SHADES = [
     (255, 248, 220),
     (255, 228, 196),
@@ -30,24 +35,7 @@ TERRAIN_SHADES = [
 IMAGE_LEN = 1000  # size of image in pixels
 WATER_COLOR = (0, 0, 255)
 
-DIRECTORY_NAME = os.path.join("images/", "FIX{}".format(random.randint(1000, 10000)))
+DIRECTORY_NAME = os.path.join("images", str(datetime.now()))
 if not os.path.exists(DIRECTORY_NAME):
     os.makedirs(DIRECTORY_NAME)
-print "Output: " + DIRECTORY_NAME
 
-#
-# def get_color_bands(color, bands):
-#     color_bands = []
-#     red, green, blue = color
-#     step = 1.0 / bands
-#     fraction = 0
-#     for band in range(bands):
-#         new_red = max(0, red - fraction * 255)
-#         new_green = max(0, green - fraction * 255)
-#         new_blue = max(0, blue - fraction * 255)
-#         color_bands.append((new_red, new_green, new_blue))
-#         fraction += step
-#     return color_bands
-#
-# l = get_color_bands((0, 200, 100), 100)
-# print l

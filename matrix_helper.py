@@ -1,6 +1,9 @@
 from random import randint
+
+import const
 from cell import Cell
 import numpy as np
+
 
 def read_matrix(filepath):
     with open(filepath, "r") as filee:
@@ -45,23 +48,36 @@ def print_matrix_diff(matrix1, matrix2):
 
 
 def init_matrix_to_file(filepath, size):
-    def make_ellipsoid(matrix, width, length):
-        width, length = float(width), float(length)
+    def make_ellipsoid(matrix, center_x, center_y, a, b):
+        a, b = float(a), float(b)
         rows, cols = matrix.shape
         for i in range(rows):
-            center_x = i - (rows / 2)
+            x = abs(i - center_x)
             for j in range(cols):
-                center_y = j - (cols / 2)
-                if abs((center_x / length) ** 2) + abs((center_y / width) ** 2) >= 1:
-                    matrix[i, j] += (abs(center_x) + abs(center_y)) * 10
+                y = abs(j - center_y)
+                if (x / a) ** 2 + (y / b) ** 2 <= 1:
+                    # matrix[i, j] += (x + y) * 5
+                    matrix[i, j] *= (x / a) ** 2 + (y / b) ** 2
         return matrix
 
-    data = np.matrix(np.zeros((size, size), int))
-    make_ellipsoid(data, 4, 3)
+    matrix = np.matrix(np.ones((size, size), int) * const.DEFAULT_TERRAIN_LEVEL)
+    matrix = make_ellipsoid(matrix=matrix,
+                            center_x=0,
+                            center_y=0,
+                            a=5,
+                            b=7)
+
+    matrix = make_ellipsoid(matrix=matrix,
+                            center_x=size,
+                            center_y=size,
+                            a=8,
+                            b=6)
+
+    # save height matrix to file
     with open(filepath, "w") as f:
         for i in range(size):
             row = ""
             for j in range(size):
-                row += str(data[i, j]) + " "
+                row += str(matrix[i, j]) + " "
             row += "\n"
             f.write(row)
