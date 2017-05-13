@@ -1,4 +1,5 @@
-SIGNIFICANT_DIGITS = 5
+import const
+import numpy as np
 
 
 def isclose(a, b, rel_tol, abs_tol=0.0):
@@ -20,29 +21,34 @@ class Cell:
     #         self.water,
     #         self.height,
     #         precision=(SIGNIFICANT_DIGITS / 2))
-    def __repr__(self):
-        def to_str_with_significant_digits(number, precision=SIGNIFICANT_DIGITS - 1):
-            string = str(number)
-            string += "0" * precision
-            dot = string.index(".")
-            return str(string[:dot + precision])
+    # def __repr__(self):
+        # def to_str_with_significant_digits(number, precision=SIGNIFICANT_DIGITS - 1):
+        #     string = str(number)
+        #     string += "0" * precision
+        #     dot = string.index(".")
+        #     return str(string[:dot + precision])
+        #
+        # return "{terrain}\t{water}\t{height}\t\t ".format(
+        #     terrain=to_str_with_significant_digits(self.terrain),
+        #     water=to_str_with_significant_digits(self.water),
+        #     height=to_str_with_significant_digits(self.height))
 
-        return "{terrain}\t{water}\t{height}\t\t ".format(
-            terrain=to_str_with_significant_digits(self.terrain),
-            water=to_str_with_significant_digits(self.water),
-            height=to_str_with_significant_digits(self.height))
+    def __repr__(self):
+        return "{terrain:.{precision}f}\t{water:.{precision}f}\t{height:.{precision}f}\t\t".format(
+            terrain=self.terrain, water=self.water, height=self.height,
+            precision=const.SIGNIFICANT_DIGITS)
 
     @property
     def height(self):
-        return round(self.terrain + self.water, SIGNIFICANT_DIGITS)
+        return np.round(self.terrain + self.water, const.SIGNIFICANT_DIGITS)
 
     @property
     def terrain(self):
-        return round(self._terrain, SIGNIFICANT_DIGITS)
+        return np.round(self._terrain, const.SIGNIFICANT_DIGITS)
 
     @property
     def water(self):
-        return round(self._water, SIGNIFICANT_DIGITS)
+        return np.round(self._water, 2)
 
     @water.setter
     def water(self, value):
@@ -76,7 +82,7 @@ class Cell:
         heights = [neighbour.height for neighbour in neighbours]
         min_height = min(heights + [self.height])
         minimal_neighbours = []
-        precision = pow(10, -SIGNIFICANT_DIGITS)
+        precision = pow(10, - const.SIGNIFICANT_DIGITS)
         if isclose(min_height, self.height, precision):
             return minimal_neighbours
         for index, height in enumerate(heights):
@@ -92,17 +98,17 @@ class Cell:
             pass
         else:
             # some water will not be drained
-            max_input = round((self.height - min_neighb[0].height) / (len(min_neighb) + 1),
-                              SIGNIFICANT_DIGITS)
+            max_input = np.round((self.height - min_neighb[0].height) / (len(min_neighb) + 1),
+                              const.SIGNIFICANT_DIGITS)
         for minimal_neighbour in min_neighb:
             shared_neighbours = set(minimal_neighbour.get_neighbours(matrix)).intersection(
                 set(neighbours))
             for shared_neighbour in shared_neighbours:
-                diff = round(shared_neighbour.height - minimal_neighbour.height,
-                             SIGNIFICANT_DIGITS)
+                diff = np.round(shared_neighbour.height - minimal_neighbour.height,
+                             const.SIGNIFICANT_DIGITS)
                 max_input = diff if (diff != 0 and diff < max_input) else max_input
         # return max_input if max_input >= 1.0 / (pow(10, PRECISION)) else 0
-        return round(max_input, SIGNIFICANT_DIGITS)
+        return np.round(max_input, const.SIGNIFICANT_DIGITS)
 
     def drain_water(self, matrix):
         smth_drained = False
