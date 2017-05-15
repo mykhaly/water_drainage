@@ -7,14 +7,13 @@ def make_rain(matrix, water_amount):
 
 
 def make_water_drainage(matrix, era):
-    smt_changed = True
-    iterations_count = 0
+    smt_changed = True  # track whether water drainage occured for at least one cell in the @matrix
+    iterations_count = 0  # number of iterations, used only for logging
     while smt_changed:
         smt_changed = False
         iterations_count += 1
-        print "Calculating {era} era, iteration: {iteration}...".format(
-            era=era, iteration=iterations_count)
-        for i, row in enumerate(matrix):
-            for j, cell in enumerate(row):
+        print "Calculating {} era, iteration: {}...".format(era, iterations_count)
+        for row in matrix:
+            for cell in row:
                 water_drained = cell.drain_water(matrix)
-                smt_changed = smt_changed or water_drained
+                smt_changed = smt_changed or water_drained  # track whether drainage occured

@@ -1,10 +1,4 @@
 import const
-import numpy as np
-
-
-def isclose(a, b, rel_tol, abs_tol=const.PRECISION):
-    # return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
-    return abs(a - b) <= abs_tol
 
 
 class Cell:
@@ -42,66 +36,64 @@ class Cell:
         row = self.x
         if row != 0:
             neighbours.append(matrix[row - 1][col])
-        if row != 0 and col != last:
-            neighbours.append(matrix[row - 1][col + 1])
+            if col != last:
+                neighbours.append(matrix[row - 1][col + 1])
         if col != last:
             neighbours.append(matrix[row][col + 1])
-        if row != last and col != last:
-            neighbours.append(matrix[row + 1][col + 1])
+            if row != last:
+                neighbours.append(matrix[row + 1][col + 1])
         if row != last:
             neighbours.append(matrix[row + 1][col])
-        if row != last and col != 0:
-            neighbours.append(matrix[row + 1][col - 1])
+            if col != 0:
+                neighbours.append(matrix[row + 1][col - 1])
         if col != 0:
             neighbours.append(matrix[row][col - 1])
-        if row != 0 and col != 0:
-            neighbours.append(matrix[row - 1][col - 1])
+            if row != 0:
+                neighbours.append(matrix[row - 1][col - 1])
         return neighbours
 
-    def get_minimal_neighbours(self, matrix):
-        neighbours = self.get_neighbours(matrix)
-        heights = [neighbour.height for neighbour in neighbours]
-        min_height = min(heights + [self.height])
+    def get_minimal_neighbours(self, matrix, neighbours):
+        heights = {neighbour.height for neighbour in neighbours}
+        heights.add(self.height)
+        min_height = min(heights)
         minimal_neighbours = []
-        precision = pow(10, - (const.SIGNIFICANT_DIGITS + 1))
-        if isclose(min_height, self.height, precision):
+        if abs(min_height - self.height) <= const.PRECISION:
             return minimal_neighbours
-        for index, height in enumerate(heights):
-            if height == min_height:
-                minimal_neighbours.append(neighbours[index])
+        for neighbour in neighbours:
+            if neighbour.height == min_height:
+                minimal_neighbours.append(neighbour)
         return minimal_neighbours
 
-    def possible_input(self, matrix, min_neighb):
-        neighbours = self.get_neighbours(matrix)
+    def possible_input(self, matrix, neighbours, min_neighb):
         max_input = float('inf')
-        if self.terrain > min_neighb[0].height + self.water / (len(min_neighb) + 1):
-            # all water could be drained
-            pass
-        else:
-            # some water will not be drained
-            max_input = (self.height - min_neighb[0].height) / (len(min_neighb) + 1)
+        len_plus_one = len(min_neighb) + 1
+        min_neighb_height = min_neighb[0].height
+        if self.terrain < min_neighb_height + self.water / len_plus_one:
+            max_input = (self.height - min_neighb_height) / len_plus_one
+
+        neighbours = set(neighbours)
         for minimal_neighbour in min_neighb:
             shared_neighbours = set(minimal_neighbour.get_neighbours(matrix)).intersection(
-                set(neighbours))
+                neighbours)
             for shared_neighbour in shared_neighbours:
                 diff = shared_neighbour.height - minimal_neighbour.height
-
                 max_input = diff if (diff != 0 and diff < max_input) else max_input
         return max_input
 
     def drain_water(self, matrix):
-        smth_drained = False
+        drainage_occured = False
         while True:
-            minimal_neighbours = self.get_minimal_neighbours(matrix)
+            if self.water < const.WATER_TOLERANCE:
+                break
+            neighbours = self.get_neighbours(matrix)
+            minimal_neighbours = self.get_minimal_neighbours(matrix, neighbours)
             if not minimal_neighbours:
-                return smth_drained
-            water_could_be_drained = self.possible_input(matrix, minimal_neighbours)
+                break
+            water_could_be_drained = self.possible_input(matrix, neighbours, minimal_neighbours)
             if water_could_be_drained * len(minimal_neighbours) > self.water:
                 water_could_be_drained = self.water / len(minimal_neighbours)
-            if water_could_be_drained not in (float('inf'), 0):
-                for minimal_neighbour in minimal_neighbours:
-                    minimal_neighbour.water += water_could_be_drained
-                    self.water -= water_could_be_drained
-                smth_drained = True
-            else:
-                return smth_drained
+            drainage_occured = True
+            for minimal_neighbour in minimal_neighbours:
+                minimal_neighbour.water += water_could_be_drained
+                self.water -= water_could_be_drained
+        return drainage_occured

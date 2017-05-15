@@ -33,7 +33,6 @@ TERRAIN_SHADES = [
     (160, 82,  45),
     (139, 69,  19)]
 IMAGE_LEN = 1000  # size of image in pixels
-WATER_COLOR = (0, 0, 255)
 
 DIRECTORY_NAME = os.path.join("images", str(datetime.now()))
 if not os.path.exists(DIRECTORY_NAME):

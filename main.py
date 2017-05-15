@@ -12,7 +12,7 @@ def main():
     matrix = read_matrix(filepath)
     # matrix = read_matrix("input2.txt")
     make_image(matrix, era=0)
-    for era in range(1, 5):
+    for era in range(1, 11):
         make_rain(matrix, const.AMOUNT_OF_RAIN)
         make_water_drainage(matrix, era)
         print_matrix(matrix)
@@ -22,6 +22,7 @@ def main():
 
 if __name__ == "__main__":
     import cProfile, pstats, StringIO
+    print "Output: " + const.DIRECTORY_NAME
 
     pr = cProfile.Profile()
     pr.enable()
@@ -29,9 +30,8 @@ if __name__ == "__main__":
     # ... do something ...
     logpath = os.path.join(const.DIRECTORY_NAME, "logfile.log")
     sys.stdout = Logger(logpath)
-    print "Output: " + const.DIRECTORY_NAME
+
     main()
-    print "Output: " + const.DIRECTORY_NAME
 
     pr.disable()
     s = StringIO.StringIO()
@@ -39,5 +39,6 @@ if __name__ == "__main__":
     ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
     ps.print_stats()
     print s.getvalue()
+    print "Output: " + const.DIRECTORY_NAME
 
 # vovk.v.d@gmail.com

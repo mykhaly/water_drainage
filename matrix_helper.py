@@ -48,7 +48,7 @@ def print_matrix_diff(matrix1, matrix2):
 
 
 def init_matrix_to_file(filepath, size):
-    def make_ellipsoid(matrix, center_x, center_y, a, b):
+    def make_ellipsoid(matrix, center_x, center_y, a, b, min_height):
         a, b = float(a), float(b)
         rows, cols = matrix.shape
         for i in range(rows):
@@ -56,22 +56,27 @@ def init_matrix_to_file(filepath, size):
             for j in range(cols):
                 y = abs(j - center_y)
                 if (x / a) ** 2 + (y / b) ** 2 <= 1:
-                    # matrix[i, j] += (x + y) * 5
-                    matrix[i, j] *= (x / a) ** 2 + (y / b) ** 2
+                    # matrix[i, j] *= min(((x / a) ** 2 + (y / b) ** 2) + min_height,
+                    #                     const.DEFAULT_TERRAIN_LEVEL)
+                    coefficient = (x / a) ** 2 + (y / b) ** 2
+                    matrix[i, j] = min(coefficient * matrix[i, j] + min_height,
+                                       const.DEFAULT_TERRAIN_LEVEL)
         return matrix
 
     matrix = np.matrix(np.ones((size, size), int) * const.DEFAULT_TERRAIN_LEVEL)
     matrix = make_ellipsoid(matrix=matrix,
-                            center_x=0,
-                            center_y=0,
-                            a=5,
-                            b=7)
+                            center_x=20,
+                            center_y=36,
+                            a=25,
+                            b=40,
+                            min_height=20)
 
     matrix = make_ellipsoid(matrix=matrix,
-                            center_x=size,
-                            center_y=size,
-                            a=8,
-                            b=6)
+                            center_x=50,
+                            center_y=36,
+                            a=25,
+                            b=30,
+                            min_height=5)
 
     # save height matrix to file
     with open(filepath, "w") as f:
